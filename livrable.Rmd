@@ -14,8 +14,22 @@ knitr::opts_chunk$set(echo = TRUE)
 # Comparaison hommes/femmes
 
 ```{r sexism}
-data <- read.csv(file = "DB_binome_2.csv")
+data <- read.csv(file = "DB_binome_2.csv");
+mandata <- c();
+womamdata <- c();
+for (i in 1:nrow(data))
+{
+  if(data[i, 'Sexe'] == 0)
+  {
+    mandata <- c(mandata, data[i, 'Peche'])
+  }
+  else
+  {
+    womamdata <- c(womamdata, data[i, 'Peche'])
+  }
+}
 
+boxplot(mandata, womamdata)
 ```
 
 ## Including Plots
