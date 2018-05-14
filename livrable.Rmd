@@ -5,19 +5,17 @@ date: "6 mai 2018"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Statistiques descriptives
 
 # Comparaison hommes/femmes
 
 ```{r sexism}
+
 data <- read.csv(file = "DB_binome_2.csv");
+n <- nrow(data);
 mandata <- c();
 womamdata <- c();
-for (i in 1:nrow(data))
+for (i in 1:n)
 {
   if(data[i, 'Sexe'] == 0)
   {
@@ -30,14 +28,27 @@ for (i in 1:nrow(data))
 }
 
 boxplot(mandata, womamdata)
+
 ```
 
-## Including Plots
+## Distribution de la pêche en fonction de la tranche d'âge
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+tranches = c(0, 0, 0)
+for (i in seq(1, n)) {
+    tranche = data[i, "Age"]
+    tranches[tranche - 1] = tranches[tranche - 1] + data[i, "Peche"]
+}
+barplot(tranches)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Intensité du vent
+
+```{r}
+vent = c()
+for(i in seq(1, n))
+{
+  vent = c(vent, data[i, "Noeuds"])
+}
+hist(vent)
+```
