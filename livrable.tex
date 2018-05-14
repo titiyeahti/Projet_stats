@@ -1,0 +1,300 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Projet - MST},
+            pdfauthor={Thibaut MILHAUD \& Thomas KOWALSKI},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{Projet - MST}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \author{Thibaut MILHAUD \& Thomas KOWALSKI}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{6 mai 2018}
+
+
+\begin{document}
+\maketitle
+
+\subsection{Statistiques descriptives}\label{statistiques-descriptives}
+
+\subsubsection{Comparaison
+hommes/femmes}\label{comparaison-hommesfemmes}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\DataTypeTok{file =} \StringTok{"DB_binome_2.csv"}\NormalTok{);}
+\NormalTok{n <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(data);}
+\NormalTok{mandata <-}\StringTok{ }\KeywordTok{c}\NormalTok{();}
+\NormalTok{womamdata <-}\StringTok{ }\KeywordTok{c}\NormalTok{();}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{n)}
+\NormalTok{\{}
+  \ControlFlowTok{if}\NormalTok{(data[i, }\StringTok{'Sexe'}\NormalTok{] }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{)}
+\NormalTok{  \{}
+\NormalTok{    mandata <-}\StringTok{ }\KeywordTok{c}\NormalTok{(mandata, data[i, }\StringTok{'Peche'}\NormalTok{])}
+\NormalTok{  \}}
+  \ControlFlowTok{else}
+\NormalTok{  \{}
+\NormalTok{    womamdata <-}\StringTok{ }\KeywordTok{c}\NormalTok{(womamdata, data[i, }\StringTok{'Peche'}\NormalTok{])}
+\NormalTok{  \}}
+\NormalTok{\}}
+
+\KeywordTok{boxplot}\NormalTok{(mandata, womamdata)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/sexism-1.pdf}
+
+\subsubsection{Distribution de la pêche en fonction de la tranche
+d'âge}\label{distribution-de-la-peche-en-fonction-de-la-tranche-dage}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tranches =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \KeywordTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, n)) \{}
+\NormalTok{    tranche =}\StringTok{ }\NormalTok{data[i, }\StringTok{"Age"}\NormalTok{]}
+\NormalTok{    tranches[tranche }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{] =}\StringTok{ }\NormalTok{tranches[tranche }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{data[i, }\StringTok{"Peche"}\NormalTok{]}
+\NormalTok{\}}
+\KeywordTok{barplot}\NormalTok{(tranches)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\subsubsection{Intensité du vent}\label{intensite-du-vent}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{hist}\NormalTok{(data[,}\StringTok{'Noeuds'}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-2-1.pdf} On
+dirait une loi de poisson.
+
+\subsubsection{Quantité de pêche}\label{quantite-de-peche}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{hist}\NormalTok{(data[,}\StringTok{'Peche'}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-3-1.pdf} On
+dirait une loi Normale.
+
+\subsection{Statistiques
+Inférentielles}\label{statistiques-inferentielles}
+
+\subsubsection{Le vent}\label{le-vent}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#On regarde la cohérence par rapport à la loi de poisson}
+\NormalTok{a <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{lambda =}\StringTok{ }\KeywordTok{mean}\NormalTok{(data[,}\StringTok{'Noeuds'}\NormalTok{])}
+
+\KeywordTok{hist}\NormalTok{(data[,}\StringTok{'Noeuds'}\NormalTok{],}\DataTypeTok{freq=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{breaks =} \KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{new=}\OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(a,}\KeywordTok{dpois}\NormalTok{(a,lambda),}\StringTok{"l"}\NormalTok{,}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\paragraph{Vraisemblance}\label{vraisemblance}
+
+Soit \(X\) un echantillon de taille \(n\) suivant une loi de poisson de
+paramêtre \(\lambda\), alors sa vraisemblance vaut : \[
+L_\lambda(X) = \prod_{i = 1}^n \exp(-\lambda)\frac{\lambda^{x_i}}{x_i!} = \exp(-n\lambda)\frac{\lambda^{\sum x_i}}{\prod x_i!}
+\] d'où, \[
+\mathcal L_\lambda(X) = \log(L_\lambda(X)) = -n\lambda + \log \lambda \sum x_i - \sum \log x_i!
+\] Ainsi en dérivant \(\mathcal L_\lambda(X)\) par rapport à
+\(\lambda\), on obtient : \[
+{\partial \mathcal L_\lambda(X) \over \partial \lambda } = -n + \frac{\sum x_i}{\lambda}
+\] et \[
+{\partial^2 \mathcal L_\lambda(X) \over \partial \lambda^2} = -\frac{\sum x_i}{\lambda^2} \leq 0
+\] La log-vraisemblance est donc concave ce qui signifie que les points
+où la dérivée s'annule sont des maximums globaux. Ainsi, \[
+\lambda_\max = {\sum^n_{i=1} x_i \over n}
+\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{log_L =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(x, l) \{}
+\NormalTok{  s =}\StringTok{ }\DecValTok{0}
+  \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \KeywordTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{length}\NormalTok{(x)))}
+\NormalTok{  \{}
+\NormalTok{    s =}\StringTok{ }\NormalTok{s }\OperatorTok{+}\StringTok{ }\KeywordTok{log}\NormalTok{(}\KeywordTok{factorial}\NormalTok{(x[i]))}
+\NormalTok{  \}}
+  \KeywordTok{return}\NormalTok{(}\OperatorTok{-}\DecValTok{1} \OperatorTok{*}\StringTok{ }\KeywordTok{length}\NormalTok{(x) }\OperatorTok{*}\StringTok{ }\NormalTok{l }\OperatorTok{+}\StringTok{ }\KeywordTok{log}\NormalTok{(l) }\OperatorTok{*}\StringTok{ }\KeywordTok{sum}\NormalTok{(x) }\OperatorTok{-}\StringTok{ }\NormalTok{s)}
+\NormalTok{\}}
+
+\NormalTok{x =}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ x, }
+     \DataTypeTok{y =} \KeywordTok{log_L}\NormalTok{(data[, }\StringTok{"Noeuds"}\NormalTok{], x),}
+     \DataTypeTok{main =} \StringTok{"Vraisemblance en fonction de lambda"}\NormalTok{,}
+     \DataTypeTok{xlab =} \StringTok{"lambda"}\NormalTok{,}
+     \DataTypeTok{ylab =} \StringTok{"L_lambda(X)"}\NormalTok{,}
+     \DataTypeTok{type =} \StringTok{"l"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\paragraph{Lambda}\label{lambda}
+
+Par en appliquant la formule trouvée ci-dessu, on obtient :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lambda =}\StringTok{ }\KeywordTok{mean}\NormalTok{(data[,}\StringTok{'Noeuds'}\NormalTok{])}
+\KeywordTok{print}\NormalTok{(lambda)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1.724
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{new =} \OtherTok{FALSE}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(x, x }\OperatorTok{*}\StringTok{ }\NormalTok{lambda }\OperatorTok{/}\StringTok{ }\NormalTok{x, }\DataTypeTok{type =} \StringTok{"l"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{livrable_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\subsubsection{Les poissons}\label{les-poissons}
+
+Soit \(X\) un echantillon de taille \(n\) suivant une loi normale
+d'écart-type \(\sigma\) et d'espérance \(\mu\) :
+\(X\sim\mathcal{N}(\mu, \sigma^2)\), alors sa vraisemblance vaut : \[
+L_\sigma(X) = \prod_{i = 1}^n \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x_i-\mu)^2}{2\sigma^2}} \\
+            = \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{x_i-\mu}{2\sigma^2}}\right)
+\] d'où \[
+\mathcal L_\sigma(X) = -n (\log\sqrt{2\pi} + \log\sigma) + \frac{1}{2\sigma^2}\sum_{i = 1}^n (x_i-\mu)^2
+\] Ainsi en dérivant \(\mathcal L_\lambda(X)\) par rapport à
+\(\lambda\), on obtient : \[
+{\partial \mathcal L_\lambda(X) \over \partial \lambda } = -n + \frac{\sum x_i}{\lambda}
+\] et \[
+{\partial^2 \mathcal L_\lambda(X) \over \partial \lambda^2} = -\frac{\sum x_i}{\lambda^2} \leq 0
+\] La log-vraisemblance est donc concave ce qui signifie que les points
+où la dérivée s'annule sont des maximums globaux. Ainsi, \[
+\lambda_\max = {\sum^n_{i=1} x_i \over n}
+\]
+
+
+\end{document}

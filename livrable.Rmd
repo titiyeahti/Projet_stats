@@ -2,7 +2,9 @@
 title: "Projet - MST"
 author: "Thibaut MILHAUD & Thomas KOWALSKI"
 date: "6 mai 2018"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ## Statistiques descriptives
@@ -14,7 +16,7 @@ output: pdf_document
 data <- read.csv(file = "DB_binome_2.csv");
 n <- nrow(data);
 mandata <- c();
-womamdata <- c();
+womandata <- c();
 for (i in 1:n)
 {
   if(data[i, 'Sexe'] == 0)
@@ -23,11 +25,12 @@ for (i in 1:n)
   }
   else
   {
-    womamdata <- c(womamdata, data[i, 'Peche'])
+    womandata <- c(womamdata, data[i, 'Peche'])
   }
 }
-
-boxplot(mandata, womamdata)
+print(mean(womandata))
+print(mean(mandata))
+boxplot(mandata, womandata)
 
 ```
 
@@ -92,18 +95,162 @@ et
 \[
 {\partial^2 \mathcal L_\lambda(X) \over \partial \lambda^2} = -\frac{\sum x_i}{\lambda^2} \leq 0
 \]
-La log-vrisemblance est donc concave ce qui signifie que les points où la dérivée s'annule sont des maximums globaux. Ainsi,
+La log-vraisemblance est donc concave ce qui signifie que les points où la dérivée s'annule sont des maximums globaux. Ainsi,
 \[
 \lambda_\max = {\sum^n_{i=1} x_i \over n}
 \]
+
+```{r}
+log_L = function(x, l) {
+  s = 0
+  for(i in seq(1, length(x)))
+  {
+    s = s + log(factorial(x[i]))
+  }
+  return(-1 * length(x) * l + log(l) * sum(x) - s)
+}
+
+x = seq(0, 10, 0.1)
+plot(x = x, 
+     y = log_L(data[, "Noeuds"], x),
+     main = "Vraisemblance en fonction de lambda",
+     xlab = "lambda",
+     ylab = "L_lambda(X)",
+     type = "l")
+```
 
 #### Lambda
 
 Par en appliquant la formule trouvée ci-dessu, on obtient :
 ```{r}
 lambda = mean(data[,'Noeuds'])
-lambda
+print(lambda)
+par(new = FALSE)
+plot(x, x * lambda / x, type = "l")
 ```
 
-### Les poissons 
+### Vraisemblance de la loi normale
 
+Soit $X$ un echantillon de taille $n$ suivant une loi normale d'écart-type $\sigma$ et d'espérance $\mu$ : $X\sim\mathcal{N}(\mu, \sigma^2)$, alors sa vraisemblance vaut :
+\[
+L_\sigma(X) = \prod_{i = 1}^n \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x_i-\mu)^2}{2\sigma^2}} \\
+            = \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{x_i-\mu}{2\sigma^2}}\right)
+\]
+d'où
+\[
+\mathcal L_\sigma(X) = -n (\log\sqrt{2\pi} + \log\sigma) + \frac{1}{2\sigma^2}\sum_{i = 1}^n (x_i-\mu)^2
+\]
+Ainsi en dérivant $\mathcal L_\sigma$ par rapport à $\lambda$, on obtient :
+\[
+{\partial \mathcal L_\sigma(X) \over \partial \sigma } = - \frac{n}{\sigma} - \frac{1}{\sigma^3} \sum (x_i - \mu)^2
+\]
+La dérivée s'annule en 
+\[
+\hat\sigma^2 = \frac{1}{n} \sum (x_i - \mu) ^ 2
+\]
+
+### Maximum de vraisemblance pour $\sigma$ (en utilisant la formule théorique)
+
+En appliquant cette formule, on trouve
+
+```{r}
+sigmas = c()
+for (lambda in seq(0, 8)) {
+  mu = 100 / (1 + lambda)
+  
+  x = c()
+  for (i in seq(1, n)) {
+    if (data[i, "Noeuds"] == lambda)
+    {
+      x = c(x, data[i, "Peche"])
+    }
+  }
+  
+  s = 0
+  for (i in seq(1, length(x))) {
+    s = s + (x[i] - mu) * (x[i] - mu)
+  }
+  sigma = 1 / length(x) 
+  sigmas = c(sigmas, sigma)
+}
+print(sigmas)
+```
+
+**Interprétation :** plus le vent est fort, plus le volume de pêche varie.
+
+**Remarque :** les valeurs pour $\lambda$ *grand* sont peu valables puisque l'échantillon est petit.
+
+### Deuxième méthode : TCL
+
+### Tracé de la log vraisemblance
+
+## Intervalles de confiance
+
+### Intervalle de confiance asymptotique pour $\lambda$
+
+### Ultime question
+
+On veut vérifier que lorsque $\lambda = 3$, la QUANTITE DE PECHE suit une loi $\mathcal{N}(\frac{100}{1 + \lambda}, \sigma^2)$ avec $\sigma = 20$. On veut savoir pour quel $\alpha$ on ne peut rejeter cette hypothèse.
+
+On utilise le test $\chi^2$. 
+
+```{r}
+peche = c()
+for (i in seq(1, n)) {
+  if (data[i, "Noeuds"] == 3)
+  {
+    peche = c(peche, data[i, "Peche"])
+  }
+}
+
+
+k = 15
+m = min(peche)
+M = max(peche)
+
+intervalles = seq(m, M, length.out = k)
+print(intervalles)
+
+muChapeau = 0
+for(i in seq(1, k - 1))
+{
+  ci = (intervalles[i] + intervalles[i + 1])
+  ni = 0
+  for (j in seq(1, length(peche)))
+  {
+    if (peche[j] >= intervalles[i])
+    {
+      if(peche[j] < intervalles[i + 1])
+      {
+        ni = ni + 1
+      }
+    }
+  }
+  muChapeau = muChapeau + ci * ni
+}
+muChapeau = muChapeau / length(peche)
+
+sigmaChapeau = 0
+for(i in seq(1, k - 1))
+{
+  ci = (intervalles[i] + intervalles[i + 1])
+  ni = 0
+  for (j in seq(1, length(peche)))
+  {
+    if (peche[j] >= intervalles[i])
+    {
+      if(peche[j] < intervalles[i + 1])
+      {
+        ni = ni + 1
+      }
+    }
+  }
+  sigmaChapeau = sigmaChapeau + ni * (ci - muChapeau) * (ci - muChapeau)
+}
+sigmaChapeau = sigmaChapeau / length(peche)
+sigmaChapeau = sqrt(sigmaChapeau)
+
+print(muChapeau)
+print(sigmaChapeau)
+
+```
