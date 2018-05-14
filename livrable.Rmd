@@ -25,7 +25,7 @@ for (i in 1:n)
   }
   else
   {
-    womandata <- c(womamdata, data[i, 'Peche'])
+    womandata <- c(womandata, data[i, 'Peche'])
   }
 }
 print(mean(womandata))
@@ -134,20 +134,61 @@ plot(x, x * lambda / x, type = "l")
 Soit $X$ un echantillon de taille $n$ suivant une loi normale d'écart-type $\sigma$ et d'espérance $\mu$ : $X\sim\mathcal{N}(\mu, \sigma^2)$, alors sa vraisemblance vaut :
 \[
 L_\sigma(X) = \prod_{i = 1}^n \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x_i-\mu)^2}{2\sigma^2}} \\
-            = \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{x_i-\mu}{2\sigma^2}}\right)
+            = \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{(x_i-\mu)^2}{2\sigma^2}}\right)
 \]
-d'où
+
+d'où pour tout :
+
 \[
-\mathcal L_\sigma(X) = -n (\log\sqrt{2\pi} + \log\sigma) + \frac{1}{2\sigma^2}\sum_{i = 1}^n (x_i-\mu)^2
+  P(pêche = x) = \sum_{i = 0}^\infty P(vent = i) \times \mathbb{P}(peche = x | vent = i)
 \]
-Ainsi en dérivant $\mathcal L_\sigma$ par rapport à $\lambda$, on obtient :
+
+Donc
+  
 \[
-{\partial \mathcal L_\sigma(X) \over \partial \sigma } = - \frac{n}{\sigma} - \frac{1}{\sigma^3} \sum (x_i - \mu)^2
+  L_\sigma(x) = \sum_{i = 0}^\infty e^{-i} \frac{\lambda^i}{i!} \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{(x_i-\frac{100}{1 + i})^2}{2\sigma^2}}\right)
 \]
-La dérivée s'annule en 
-\[
-\hat\sigma^2 = \frac{1}{n} \sum (x_i - \mu) ^ 2
-\]
+
+Pour nos applications numériques, on veut trouver $i$ tel que $\mathbb{P}(vent = i) < 0.00001$ (sachant qu'on utilise le $\lambda$ de max vraisemblance trouvé précédemment.)
+
+```{r}
+print(lambda)
+for(i in seq(1, 100)) {
+  p = exp(-1 * lambda) * lambda ^ i / factorial(i)
+  if (p < 0.00001)
+  {
+    break
+  }
+}
+print(i)
+```
+
+On trouve donc que la valeur de vent dont la probabilité est inférieure à 0.0000001 est **11**.
+
+Pour déterminer le $\sigma$ de maximum vraisemblance on utilise la fonction `optimize` avec une fonction de vraisemblance que l'on définit. 
+
+```{r}
+l = function(sigma, lambda, x, imax) {
+  somme = 0
+  for (i in seq(0, imax)) {
+    somme = somme + exp(-i) * lambda^i / factorial(i) * (1 / (sqrt(2 * pi) * sigma)) ^ length(x)
+    sousSomme = 0
+    for (k in seq(1, length(x))) {
+      sousSomme = sousSomme + (x[i] - 100 / (1 + i)) ^ 2 / (2 * sigma ^ 2)
+    }
+    somme = somme * exp(-1 * sousSomme)
+  }
+  return(somme)
+}
+```
+
+```{r}
+vec = data[, "Peche"]
+imax = 11
+f = function(x) l(x, lambda, vec, imax)
+sig = optimize(f = f, maximum = TRUE, lower = 0, upper = 10)
+print(sig)
+```
 
 ### Maximum de vraisemblance pour $\sigma$ (en utilisant la formule théorique)
 
