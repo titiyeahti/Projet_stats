@@ -7,7 +7,7 @@ output: pdf_document
 
 ## Statistiques descriptives
 
-# Comparaison hommes/femmes
+### Comparaison hommes/femmes
 
 ```{r sexism}
 
@@ -31,7 +31,7 @@ boxplot(mandata, womamdata)
 
 ```
 
-## Distribution de la pêche en fonction de la tranche d'âge
+### Distribution de la pêche en fonction de la tranche d'âge
 
 ```{r}
 tranches = c(0, 0, 0)
@@ -42,13 +42,68 @@ for (i in seq(1, n)) {
 barplot(tranches)
 ```
 
-## Intensité du vent
+### Intensité du vent
 
 ```{r}
-vent = c()
-for(i in seq(1, n))
-{
-  vent = c(vent, data[i, "Noeuds"])
-}
-hist(vent)
+hist(data[,'Noeuds'])
 ```
+On dirait une loi de poisson.
+
+
+### Quantité de pêche
+
+```{r}
+hist(data[,'Peche'])
+```
+On dirait une loi Normale.
+
+## Statistiques Inférentielles
+
+### Le vent
+
+```{r}
+#On regarde la cohérence par rapport à la loi de poisson
+a <- seq(0,8,1)
+lambda = mean(data[,'Noeuds'])
+
+hist(data[,'Noeuds'],freq=FALSE,breaks = seq(0,8,1))
+par(new=TRUE)
+plot(a,dpois(a,lambda),"l",col="red")
+
+
+
+```
+
+#### Vraisemblance
+
+Soit $X$ un echantillon de taille $n$ suivant une loi de poisson de paramêtre $\lambda$, alors sa vraisemblance vaut :
+\[
+L_\lambda(X) = \prod_{i = 1}^n \exp(-\lambda)\frac{\lambda^{x_i}}{x_i!} = \exp(-n\lambda)\frac{\lambda^{\sum x_i}}{\prod x_i!}
+\]
+d'où, 
+\[
+\mathcal L_\lambda(X) = \log(L_\lambda(X)) = -n\lambda + \log \lambda \sum x_i - \sum \log x_i!
+\]
+Ainsi en dérivant $\mathcal L_\lambda(X)$ par rapport à $\lambda$, on obtient :
+\[
+{\partial \mathcal L_\lambda(X) \over \partial \lambda } = -n + \frac{\sum x_i}{\lambda}
+\]
+et 
+\[
+{\partial^2 \mathcal L_\lambda(X) \over \partial \lambda^2} = -\frac{\sum x_i}{\lambda^2} \leq 0
+\]
+La log-vrisemblance est donc concave ce qui signifie que les points où la dérivée s'annule sont des maximums globaux. Ainsi,
+\[
+\lambda_\max = {\sum^n_{i=1} x_i \over n}
+\]
+
+#### Lambda
+
+Par en appliquant la formule trouvée ci-dessu, on obtient :
+```{r}
+lambda = mean(data[,'Noeuds'])
+lambda
+```
+
+### Les poissons 
+
