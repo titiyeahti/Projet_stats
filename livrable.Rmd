@@ -171,10 +171,10 @@ Pour déterminer le $\sigma$ de maximum vraisemblance on utilise la fonction `op
 l = function(sigma, lambda, x, imax) {
   somme = 0
   for (i in seq(0, imax)) {
-    somme = somme + exp(-i) * lambda^i / factorial(i) * (1 / (sqrt(2 * pi) * sigma)) ^ length(x)
+    somme = somme + exp(-1 * i) * lambda ** i / factorial(i) * (1 / (sqrt(2 * pi) * sigma)) ** length(x)
     sousSomme = 0
     for (k in seq(1, length(x))) {
-      sousSomme = sousSomme + (x[i] - 100 / (1 + i)) ^ 2 / (2 * sigma ^ 2)
+      sousSomme = sousSomme + (x[k] - 100 / (1 + i)) ^ 2 / (2 * sigma ^ 2)
     }
     somme = somme * exp(-1 * sousSomme)
   }
@@ -185,14 +185,15 @@ l = function(sigma, lambda, x, imax) {
 ```{r}
 vec = data[, "Peche"]
 imax = 11
-f = function(x) l(x, lambda, vec, imax)
+lambda = lambda # on garde l'ancien
+f = function(x) { return(l(x, lambda, vec, imax)) }
 sig = optimize(f = f, maximum = TRUE, lower = 0, upper = 10)
 print(sig)
 ```
 
 ### Maximum de vraisemblance pour $\sigma$ (en utilisant la formule théorique)
 
-En appliquant cette formule, on trouve
+En appliquant la formule précédemment donnée, on trouve
 
 ```{r}
 sigmas = c()
