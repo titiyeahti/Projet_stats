@@ -3,12 +3,12 @@ title: "Projet - MST"
 author: "Thibaut MILHAUD & Thomas KOWALSKI"
 date: "6 mai 2018"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
 
 ## Statistiques descriptives
-
 ### Comparaison hommes/femmes
 
 ```{r sexism}
@@ -50,7 +50,7 @@ barplot(tranches)
 ```{r}
 hist(data[,'Noeuds'])
 ```
-On dirait une loi de poisson.
+On remarque que l'intensité du vent est entière, de plus, l'allure de cet histograme rappelle un loi de poisson.
 
 
 ### Quantité de pêche
@@ -61,15 +61,15 @@ hist(data[,'Peche'])
 On dirait une loi Normale.
 
 ## Statistiques Inférentielles
-
-### Le vent
+### Etude du modèle suivi par le vent
+#### Cohérence avec la loi de poisson
 
 ```{r}
 #On regarde la cohérence par rapport à la loi de poisson
 a <- seq(0,8,1)
 lambda = mean(data[,'Noeuds'])
 
-hist(data[,'Noeuds'],freq=FALSE,breaks = seq(0,8,1))
+hist(data[,'Noeuds'],freq=FALSE,breaks = seq(0,8,0.5))
 par(new=TRUE)
 plot(a,dpois(a,lambda),"l",col="red")
 
@@ -97,7 +97,7 @@ et
 \]
 La log-vraisemblance est donc concave ce qui signifie que les points où la dérivée s'annule sont des maximums globaux. Ainsi,
 \[
-\lambda_\max = {\sum^n_{i=1} x_i \over n}
+\lambda_{\max} = {\sum^n_{i=1} x_i \over n}
 \]
 
 ```{r}
@@ -113,43 +113,35 @@ log_L = function(x, l) {
 x = seq(0, 10, 0.1)
 plot(x = x, 
      y = log_L(data[, "Noeuds"], x),
-     main = "Vraisemblance en fonction de lambda",
+     main = "Log-Vraisemblance en fonction de lambda",
      xlab = "lambda",
      ylab = "L_lambda(X)",
      type = "l")
-```
-
-#### Lambda
-
-Par en appliquant la formule trouvée ci-dessu, on obtient :
-```{r}
 lambda = mean(data[,'Noeuds'])
 print(lambda)
-par(new = FALSE)
-plot(x, x * lambda / x, type = "l")
+par(new = TRUE)
+abline(v = lambda)
 ```
 
-### Vraisemblance de la loi normale
+### Estimation du paramètre sigma
+#### Formules des probabiltés totales
 
-Soit $X$ un echantillon de taille $n$ suivant une loi normale d'écart-type $\sigma$ et d'espérance $\mu$ : $X\sim\mathcal{N}(\mu, \sigma^2)$, alors sa vraisemblance vaut :
+D'après la formule des probabilités totales, on obtient
 \[
-L_\sigma(X) = \prod_{i = 1}^n \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x_i-\mu)^2}{2\sigma^2}} \\
-            = \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{(x_i-\mu)^2}{2\sigma^2}}\right)
+  P(\text{ pêche} = x) = \sum_{i = 0}^\infty P(\text{ vent} = i) \times \mathbb{P}(\text{ pêche} = x | \text{ vent} = i)
 \]
-
-d'où pour tout :
-
+c'est-à-dire que la densité de la loi de $X$ est la suivante :
 \[
-  P(pêche = x) = \sum_{i = 0}^\infty P(vent = i) \times \mathbb{P}(peche = x | vent = i)
+f_X(x) =  e^{-\lambda} \frac{1}{ \sqrt{2\pi} \sigma }
+          \sum_{i=0}^\infty \frac{\lambda^i}{i!}
+          \exp\left( -\frac{(x-\frac{100}{1+i})^2}{2\sigma^2} \right)
 \]
-
-Donc
-  
+On peut alors calculer la vraisemblance en faisant le produit des densités evaluées en $x_i$ :
 \[
-  L_\sigma(x) = \sum_{i = 0}^\infty e^{-i} \frac{\lambda^i}{i!} \left( \frac{1}{\sqrt{2\pi}\sigma} \right) ^n \exp\left({-\sum_{i=1}^n \frac{(x_i-\frac{100}{1 + i})^2}{2\sigma^2}}\right)
+  L_\sigma(x) = \prod^n_{i=1}f_X(x_i)
 \]
-
-Pour nos applications numériques, on veut trouver $i$ tel que $\mathbb{P}(vent = i) < 0.00001$ (sachant qu'on utilise le $\lambda$ de max vraisemblance trouvé précédemment.)
+Cependant l'expression de ce produit ne parait pas se simplifier et on va donc devoir calculer la vraisemblance numériquement puis de trouver son maximum grâce à la fonction \verb{optimize}.
+Pour nos applications numériques, on veut trouver $i$ tel que $\mathbb{P}(vent = i) < 0.00001$ (sachant qu'on utilise le $\lambda$ de max vraisemblance trouvé précédemment.) afin de travailler avec des sommes finies.
 
 ```{r}
 print(lambda)
@@ -168,17 +160,24 @@ On trouve donc que la valeur de vent dont la probabilité est inférieure à 0.0
 Pour déterminer le $\sigma$ de maximum vraisemblance on utilise la fonction `optimize` avec une fonction de vraisemblance que l'on définit. 
 
 ```{r}
-l = function(sigma, lambda, x, imax) {
-  somme = 0
-  for (i in seq(0, imax)) {
-    somme = somme + exp(-1 * i) * lambda ** i / factorial(i) * (1 / (sqrt(2 * pi) * sigma)) ** length(x)
-    sousSomme = 0
-    for (k in seq(1, length(x))) {
-      sousSomme = sousSomme + (x[k] - 100 / (1 + i)) ^ 2 / (2 * sigma ^ 2)
-    }
-    somme = somme * exp(-1 * sousSomme)
+logvraiss = function(sigma, lambda, X, imax) {
+  #initalisation du tableau des puissances de lambda et des i factoriel de 0 à imax
+  powers = c(1)
+  facts = c(1)
+  for(i in 2:(imax+1))
+  {
+    powers <- c(powers, lambda*powers[i-1])
+    facts <- c(facts, (i-1)*facts[i-1])
   }
-  return(somme)
+  logproduit = 0
+  for (xi in X) {
+    somme = 0
+    for (i in i:(imax+1)){
+      somme <- somme + powers[i]/facts[i]*exp(-(xi - 100/(i))**2/(2*sigma**2))
+    }
+    logproduit <- -lambda -log((2*pi)**0.5*sigma) + logproduit + log(somme)
+  }
+  return(logproduit)
 }
 ```
 
@@ -186,50 +185,121 @@ l = function(sigma, lambda, x, imax) {
 vec = data[, "Peche"]
 imax = 11
 lambda = lambda # on garde l'ancien
-f = function(x) { return(l(x, lambda, vec, imax)) }
-sig = optimize(f = f, maximum = TRUE, lower = 0, upper = 10)
+sig = optimise(logvraiss, lambda = lambda, X = vec, imax = imax, lower = 0, upper = 100, maximum = TRUE)
 print(sig)
+sigma1 = sig$maximum
 ```
 
-### Maximum de vraisemblance pour $\sigma$ (en utilisant la formule théorique)
-
-En appliquant la formule précédemment donnée, on trouve
+On obtient donc une valeur de $\sigma = 52.1$ en utilisant notre estimateur de vraisemblance approché.
 
 ```{r}
-sigmas = c()
-for (lambda in seq(0, 8)) {
-  mu = 100 / (1 + lambda)
-  
-  x = c()
-  for (i in seq(1, n)) {
-    if (data[i, "Noeuds"] == lambda)
-    {
-      x = c(x, data[i, "Peche"])
-    }
-  }
-  
-  s = 0
-  for (i in seq(1, length(x))) {
-    s = s + (x[i] - mu) * (x[i] - mu)
-  }
-  sigma = 1 / length(x) 
-  sigmas = c(sigmas, sigma)
-}
-print(sigmas)
+Sigma = seq(45,65,0.001)
+Logvraissemblance = logvraiss(Sigma,lambda,vec,imax)
+plot(x = Sigma, y = Logvraissemblance, type = "l")
+par(new = TRUE)
+abline(v = sigma1)
 ```
 
-**Interprétation :** plus le vent est fort, plus le volume de pêche varie.
+#### Utilisation du T.C.L pour se ramener à une seule loi
 
-**Remarque :** les valeurs pour $\lambda$ *grand* sont peu valables puisque l'échantillon est petit.
+On d'après le TCL on peut se ramener à une seule loi normale $\mathcal{N}(\mu, \sigma^2)$ on va donc utiliser la moyenne empirique pour estimer $\mu$.
+D'où notre échantillon va suivre la loi $\mathcal{N}(\overline{X}, \sigma^2)$.
 
-### Deuxième méthode : TCL
 
-### Tracé de la log vraisemblance
+calcul de la vraisemblance :
+\[
+L = (\frac{1}{\sqrt {2\pi}\sigma})^n\exp(-\frac{\sum{(x_i - \overline{X})^2}}{2\sigma^2})
+\]
+D'où la log-vraisemblance vaut :
+\[
+\mathcal{L}(\sigma) = -n \log(\sqrt{2\pi}\sigma) - \frac{1}{2\sigma^2}\sum(x_i - \overline{X})^2
+\]
+Et
+\[
+\frac{\partial \mathcal L (\sigma)}{\partial \sigma} = \frac{-n}{\sigma} + \frac{1}{\sigma^3}\sum(x_i - \overline{X})^2
+\]
+et en cherchant le point où la dérivée s'annule :
+\[
+\sigma_{\max} = \sqrt{\frac{\sum(x_i - \overline{X})^2}{n}}
+\]
+
+```{r calcul}
+ecart_type = function (X)
+{
+  moy = mean(X)
+  sum = 0
+  for(x in X)
+  {
+    sum <- sum + (x - moy)**2
+  }
+  
+  return((sum/length(X))**0.5)
+}
+
+logvraiss2 <- function(sigma,X)
+{
+  n = length(X)
+  return(-n*log((2*pi)**0.5*sigma) - ecart_type(X)**2*n/(2*sigma**2))
+}
+
+sigma2 = ecart_type(vec)
+print(sigma2)
+Sigma = seq(25,45,0.001)
+Logvraissemblance = logvraiss2(Sigma,vec)
+
+plot(x = Sigma, y = Logvraissemblance, type = "l")
+par(new = TRUE)
+abline(v = sigma2)
+```
+
 
 ## Intervalles de confiance
+### Calculs théoriques
+On sait que :
+\[
+\Lambda_n=\sqrt n\frac{\overline{X}-\mu}{S_n} \sim  T_{n-1}
+\]
+où $\overline{X}$ correspond à la moyenne empirique, $\mu$ à l'espérance et $S_n = \frac{1}{n-1}\sum_{i=0}^{n}(x_i - \overline{X})^2$.
+D'où, dans notre cas,
+\[
+\Lambda_n = \sqrt n\frac{\overline{X}-\lambda}{S_n} \sim T_{n-1}
+\]
+Ainsi, 
+\[
+\begin{array}{rcl}
+\mathbb P(a<\Lambda_n<b) = 1 - \alpha & \Longleftrightarrow & F^{-1}_{T_{n-1}}(\frac \alpha 2) <\Lambda_n < F^{-1}_{T_{n-1}}(1 - \frac \alpha 2) \\
+& \Longleftrightarrow & \overline X - \frac{S_n}{\sqrt n} F^{-1}_{T_{n-1}}(1 - \frac{\alpha}{2}) < \lambda < \overline X + \frac{S_n}{\sqrt n} F^{-1}_{T_{n-1}}(1 - \frac \alpha 2) 
+\end{array}
+\]
+### Application numérique
+```{r}
+confiance <- function(X, alpha=0.05)
+{
+  n = length(X)
+  q = qt(1-alpha/2,n)
+  moy = 0
+  for (xi in X)
+  {
+    moy <- moy + xi
+  }
+  moy <- moy/n
+  
+  sn = 0
+  for (xi in X)
+  {
+    sn <- sn + (xi-moy)^2
+  }
+  sn <- sn/(n-1)
+  
+  q <- sn * q / n**0.5
+  return(c(moy-q, moy+q))
+}
 
-### Intervalle de confiance asymptotique pour $\lambda$
+confiance(data[,"Noeuds"])
+```
+On obtient que $\lambda$ a 95% de chances d'appartenir à l'intervalle $I = [1.651,1.796]$.
 
+## Tests
 ### Ultime question
 
 On veut vérifier que lorsque $\lambda = 3$, la QUANTITE DE PECHE suit une loi $\mathcal{N}(\frac{100}{1 + \lambda}, \sigma^2)$ avec $\sigma = 20$. On veut savoir pour quel $\alpha$ on ne peut rejeter cette hypothèse.
